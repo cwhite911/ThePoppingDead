@@ -8,31 +8,38 @@ angular.module('thePoppingDeadApp')
         playerStart,
         playerTrail,
         trailArray,
+        color,
         player;
+
+    color = '#' + [
+        (~~(Math.random() * 16)).toString(16),
+        (~~(Math.random() * 16)).toString(16),
+        (~~(Math.random() * 16)).toString(16)].join('');
 
     map = L.mapbox.map('map', 'ctwhite.l7618poc', {
       zoomControl: false
+    }).on('ready', function() {
+      new L.Control.MiniMap(L.mapbox.tileLayer('ctwhite.l7618poc'))
+      .addTo(map);
     });
 
 
   playerStart = L.latLng(35.60281152073829, -82.56827473640442);
-  player = L.marker(playerStart);
+  player = L.marker(playerStart, {
+    icon: L.mapbox.marker.icon({
+      'marker-color': color
+    })
+  });
+
 
   trailArray = [playerStart];
 
 
 
-
+ $scope.score = 0;
  $scope.moveCounter = 0;
  $scope.bombCount = 3;
- function getRandomColor() {
-   var letters = '0123456789ABCDEF'.split('');
-   var color = '#';
-   for (var i = 0; i < 6; i++ ) {
-     color += letters[Math.floor(Math.random() * 16)];
-   }
-   return color;
- }
+
 
   $scope.checkKey = function (e) {
     console.log(e);
@@ -50,7 +57,7 @@ angular.module('thePoppingDeadApp')
         player.setLatLng(map.getCenter());
         if (trailArray.length === 2 && $scope.moveCounter === 1) {
           playerTrail = L.polyline(trailArray, {
-            color: getRandomColor(),
+            color: color,
             dashArray: '3 10'
           }
         );
@@ -70,12 +77,12 @@ angular.module('thePoppingDeadApp')
           $scope.bomb;
           $scope.bombRadius = 5;
           $scope.bomb = L.circle(map.getCenter(), $scope.bombRadius, {
-            color: getRandomColor()
+            color: color
           }).addTo(map);
           $interval(function(){
             if ($scope.bomb.getRadius() < 20) {
               $scope.bombRadius+= 5;
-              $scope.bomb.setStyle(getRandomColor());
+              $scope.bomb.setStyle(color);
               $scope.bomb.setRadius($scope.bombRadius);
             }
             else {
